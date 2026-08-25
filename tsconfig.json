@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        // Playwright 및 테스트 실행을 위한 기본 설정
+        // "ignoreDeprecations": "6.0",
+        "target": "es2020",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true,
+
+        // --- 경로 별칭 설정 ---
+        // "baseUrl": ".", // 경로 해석의 기준 디렉토리
+        "types": ["node"],
+        "paths": {
+            // "@common" 별칭을 사용하여 common.ts 파일의 실제 위치를 지정
+            "@common": ["./src/common.ts"],
+            "@login": ["./src/pages/login.ts"],
+            "@menuPage": ["./src/pages/menu.ts"]
+        }
+    },
+    // TypeScript가 테스트 파일과 설정 파일을 포함하도록 지정
+    "include": [
+        "**/*.ts",
+        "playwright.config.ts"
+    ]
+}
