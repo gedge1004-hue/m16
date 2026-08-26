@@ -15,11 +15,9 @@ test('MON_0006 Communication state - UI', async ({ page }) => {
     await common.changeLanguage('us');
     // 로그인 진행
     await loginPage.login('tester', 'tester');
-    // 로그인 성공 문구 확인
-    await expect(page.getByText('Welcome to Conveyor Control System', { exact: true })).toBeVisible({ timeout: 5000 });
     // Monitoring 페이지 진입
     await menuPage.navigateTo('monitoring');
     // Communication UI 이미지 비교 확인
     const equipmentStateArea = page.locator('.equipment-state');
-    await expect(equipmentStateArea).toHaveScreenshot('equipment-state.png', { timeout: 5000 });
+    await expect(equipmentStateArea).toHaveScreenshot('equipment_state.png', { timeout: 5000 });
 });

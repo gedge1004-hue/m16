@@ -16,7 +16,8 @@
             // "@common" 별칭을 사용하여 common.ts 파일의 실제 위치를 지정
             "@common": ["./src/common.ts"],
             "@login": ["./src/pages/login.ts"],
-            "@menuPage": ["./src/pages/menu.ts"]
+            "@menuPage": ["./src/pages/menu.ts"],
+            "@equipment": ["./src/pages/equipment.ts"]
         }
     },
     // TypeScript가 테스트 파일과 설정 파일을 포함하도록 지정

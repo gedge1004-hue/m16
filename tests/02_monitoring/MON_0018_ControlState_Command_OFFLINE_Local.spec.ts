@@ -4,7 +4,7 @@ import { LoginPage } from '@login';
 import { MenuPage } from '@menuPage';
 import { Equipment } from '@equipment';
 
-test('MON_0008 Communication state - Command popup cancel', async ({ page }) => {
+test('MON_0018 Control state - OFFLINE Local', async ({ page }) => {
 
     const common = new Common(page);
     const loginPage = new LoginPage(page);
@@ -19,12 +19,12 @@ test('MON_0008 Communication state - Command popup cancel', async ({ page }) => 
     await loginPage.login('tester', 'tester');
     // Monitoring 페이지 진입
     await menuPage.navigateTo('monitoring');
-    // communication state 값 영역
-    const stateValueBox = page.locator('.state-row').first().locator('.state-value');
-    // communication default 및 배경까지 이미지 비교
-    await expect(stateValueBox).toHaveScreenshot('communication_default_state.png');
-    // 팝업 내 Cancel 클릭
-    await equipment.commState('none', 'n');
-    // communication default 및 배경까지 이미지 비교
-    await expect(stateValueBox).toHaveScreenshot('communication_default_state.png');
+    // Control online local 클릭
+    await equipment.conState('onLocal', 'y');
+    // Control offline 클릭
+    await equipment.conState('offline', 'y');
+    // Control state 값 영역
+    const stateValueBox = page.locator('.state-row').nth(1).locator('.state-value');
+    // Control offline 및 배경까지 이미지 비교
+    await expect(stateValueBox).toHaveScreenshot('control_offline_local.png');
 });

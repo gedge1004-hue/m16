@@ -15,6 +15,7 @@ function getTimestamp() {
 const runTimestamp = getTimestamp();
 
 export default defineConfig({
+  tsconfig: './tsconfig.json',
   testDir: './tests',
   // 테스트 시간 60초
   timeout: 150000,
