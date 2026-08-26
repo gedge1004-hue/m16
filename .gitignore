@@ -1,1 +1,5 @@
-node_modules/
+# Playwright 테스트 결과 및 리포트 폴더 제외
+html-report/
+test-results/
+playwright-report/
+blob-report/
