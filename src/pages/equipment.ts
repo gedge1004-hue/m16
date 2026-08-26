@@ -100,4 +100,12 @@ export class Equipment {
             return;
         }
     }
+
+    /**
+     * Equipment state
+     */
+    async equipState(stateValue: string, yn: string) {
+        //
+        const equipState = this.page.locator('.equipment-value');
+    }
 }
