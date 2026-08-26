@@ -63,7 +63,7 @@ export default defineConfig({
 
     // 브라우저 실행 설정
     browserName: 'chromium',
-    // channel: 'chrome',
+    channel: 'chrome',
     headless: true,
 
     // 현재 창 최대 크기 구현 (에러 방지형)

@@ -104,8 +104,47 @@ export class Equipment {
     /**
      * Equipment state
      */
-    async equipState(stateValue: string, yn: string) {
-        //
-        const equipState = this.page.locator('.equipment-value');
+    async equipState(equipParam: string, equipValue: string, yn: string) {
+        // equipment info
+        const equipValueLocator = this.page.locator('.value-box');
+
+        // 입력할 파라미터 클릭
+        if (equipParam == "model") {   
+            await equipValueLocator.first().click();
+        } else if (equipParam == "name") {
+            await equipValueLocator.nth(1).click();
+        } else if (equipParam == "timeout") {
+            await equipValueLocator.nth(2).click();
+        } else {
+            // ❌ 실패 처리 후 즉시 함수를 종료하도록 return 추가
+            test.fail(true, `유효하지 않은 equipParam이 입력되었습니다: '${equipParam}'. ('model' 또는 'name' 또는 'timeout' 만 가능)`);
+            return;
+        }
+
+        // 값 입력
+        if (equipValue == "none" || equipValue == "") {
+
+        } else {
+            // 값 입력
+            const inputField = this.page.locator('.el-input__inner').nth(1);
+            await inputField.click();
+            await inputField.fill(equipValue);
+        }
+        
+        // 버튼 클릭
+        if (yn == "y") {
+            // command 팝업 OK 클릭
+            await this.page.getByRole('button', { name: 'OK', exact: true }).click();
+        } else if (yn == "n") {
+            // command 팝업 Cancel 클릭
+            await this.page.getByRole('button', { name: 'Cancel', exact: true }).click();
+        } else if (yn == "none") {
+            // 아무것도 클릭하지 않고 팝업 유지
+        } else {
+            // ❌ 실패 처리 후 즉시 함수를 종료하도록 return 추가
+            test.fail(true, `유효하지 않은 yn가 입력되었습니다: '${yn}'. ('y', 'n', 'none' 만 가능)`);
+            return;
+        }
+
     }
 }
