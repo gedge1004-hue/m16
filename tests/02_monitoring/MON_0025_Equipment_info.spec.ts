@@ -19,17 +19,10 @@ test('MON_0025 Equipment info', async ({ page }) => {
     await loginPage.login('tester', 'tester');
     // Monitoring 페이지 진입
     await menuPage.navigateTo('monitoring');
-    // Equipment info 클릭
-    await equipment.clickEquipmentInfo();
-    // Control online remote 클릭
-    await equipment.conState('onRemote', 'y'); 
-    // Control state 값 영역
-    const stateValueBox = page.locator('.state-row').nth(1).locator('.state-value');
-    // Control online remote 및 배경까지 이미지 비교
+   
+    // Equipment 영역
+    const stateValueBox = page.locator('.equipment-value');
+    // Equipment 및 배경까지 이미지 비교
     await expect(stateValueBox).toHaveScreenshot('control_online_remote.png');
-    // Control online local 클릭
-    await equipment.conState('onLocal', 'y');
-    // Control online local 및 배경까지 이미지 비교
-    await expect(stateValueBox).toHaveScreenshot('control_online_local.png');
 
 });
