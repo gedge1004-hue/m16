@@ -21,13 +21,10 @@ test('MON_0042 Service status TCM Location move', async ({ page }) => {
     // 'ul' 태그 아래에서 '246' 글자가 정확히 적힌 내부 div(.flexRow)를 찾기
     const tcmMAPArea = page.locator('ul').locator('div.flexRow', { hasText: '246' }).first();
     // 내부 엘리먼트를 직접 클릭하면 맵뷰 이동
-    await tcmMAPArea.click({ force: true });
-    // 이동 애니메이션이 완료될 때까지 확실히 대기
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(2000);
+    await tcmMAPArea.click();
     // TCM 선택 시 해당 TCM 영역 맵 확인
     const canvasArea = page.locator('.canvas-wrapper canvas').first();
-    await expect(canvasArea).toBeVisible({ timeout: 5000 });
     // 완전히 데이터 렌더링이 끝난 깨끗한 246 맵 이미지를 캡처하여 비교합니다.
     await expect(canvasArea).toHaveScreenshot('tcm246_map_area.png', { 
         maxDiffPixelRatio: 0.1, // 실시간 데이터 미세 오차 허용
