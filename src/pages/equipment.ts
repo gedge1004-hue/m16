@@ -1,4 +1,5 @@
 import { test, expect, Locator, Page } from "@playwright/test";
+import { MenuPage } from '@menuPage';
 
 export class Equipment {
 
@@ -146,5 +147,30 @@ export class Equipment {
             return;
         }
 
+    }
+
+    /**
+     * Service state 확인
+     */
+    async serviceState(serviceParam: string, option: string) {
+        const menuPage = new MenuPage(this.page);
+        // 원형 버튼들을 감싸고 있는 <ul> 영역을 선택
+        // (속성 이름과 가변적인 flex 관련 클래스들을 조합하여 유일한 영역을 지정)
+        const circleListArea = this.page.locator('ul.flex.gap-\\[6\\px\\]');
+
+        if (serviceParam == "all" && option == "on") {
+            // 전체 service on 확인
+            await expect(circleListArea).toHaveScreenshot('all_service_on.png', { timeout: 5000 });
+        } else if (serviceParam == "all" && option == "off") {
+            // control 페이지 진입
+            await menuPage.navigateTo('control');
+
+            // 전체 service off 확인
+            await expect(circleListArea).toHaveScreenshot('all_service_off.png', { timeout: 5000 }); 
+        } else {
+            // ❌ 실패 처리 후 즉시 함수를 종료하도록 return 추가
+        }
+        
+        
     }
 }
