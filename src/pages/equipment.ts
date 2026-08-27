@@ -12,7 +12,7 @@ export class Equipment {
     /**
      * Communication state
      */
-    async commState(stateValue: string, yn: string) {
+    async commState(stateValue: string, option: string) {
         // 기본 값으로 시작
         const commState = this.page.locator('.state-row').first();
         await commState.click();
@@ -39,17 +39,17 @@ export class Equipment {
             return;
         }
         
-        if (yn == "y") {
+        if (option == "ok") {
             // command 팝업 OK 클릭
             await this.page.getByRole('button', { name: 'OK', exact: true }).click();
-        } else if (yn == "n") {
+        } else if (option == "cancel") {
             // command 팝업 Cancel 클릭
             await this.page.getByRole('button', { name: 'Cancel', exact: true }).click();
-        } else if (yn == "none") {
+        } else if (option == "none") {
             // 아무것도 클릭하지 않고 팝업 유지
         } else {
             // ❌ 실패 처리 후 즉시 함수를 종료하도록 return 추가
-            test.fail(true, `유효하지 않은 yn가 입력되었습니다: '${yn}'. ('y', 'n', 'none' 만 가능)`);
+            test.fail(true, `유효하지 않은 option이 입력되었습니다: '${option}'. ('ok', 'cancel', 'none' 만 가능)`);
             return;
         }
     }
@@ -57,7 +57,7 @@ export class Equipment {
     /**
      * Control state
      */
-    async conState(stateValue: string, yn: string) {
+    async conState(stateValue: string, option: string) {
         // 기본 값으로 시작
         const commState = this.page.locator('.state-row').nth(1);
         await commState.click();
@@ -87,17 +87,18 @@ export class Equipment {
             return;
         }
 
-        if (yn == "y") {
+        if (option == "ok") {
             // command 팝업 OK 클릭
             await this.page.getByRole('button', { name: 'OK', exact: true }).click();
-        } else if (yn == "n") {
+        } else if (option == "cancel") {
             // command 팝업 Cancel 클릭
+            await this.page.waitForTimeout(2500);
             await this.page.getByRole('button', { name: 'Cancel', exact: true }).click();
-        } else if (yn == "none") {
+        } else if (option == "none") {
             // 아무것도 클릭하지 않고 팝업 유지
         } else {
             // ❌ 실패 처리 후 즉시 함수를 종료하도록 return 추가
-            test.fail(true, `유효하지 않은 yn가 입력되었습니다: '${yn}'. ('y', 'n', 'none' 만 가능)`);
+            test.fail(true, `유효하지 않은 option이 입력되었습니다: '${option}'. ('ok', 'cancel', 'none' 만 가능)`);
             return;
         }
     }
@@ -105,7 +106,7 @@ export class Equipment {
     /**
      * Equipment state
      */
-    async equipState(equipParam: string, equipValue: string, yn: string) {
+    async equipState(equipParam: string, equipValue: string, option: string) {
         // equipment info
         const equipValueLocator = this.page.locator('.value-box');
 
@@ -133,17 +134,17 @@ export class Equipment {
         }
         
         // 버튼 클릭
-        if (yn == "y") {
+        if (option == "ok") {
             // command 팝업 OK 클릭
             await this.page.getByRole('button', { name: 'OK', exact: true }).click();
-        } else if (yn == "n") {
+        } else if (option == "cancel") {
             // command 팝업 Cancel 클릭
             await this.page.getByRole('button', { name: 'Cancel', exact: true }).click();
-        } else if (yn == "none") {
+        } else if (option == "none") {
             // 아무것도 클릭하지 않고 팝업 유지
         } else {
             // ❌ 실패 처리 후 즉시 함수를 종료하도록 return 추가
-            test.fail(true, `유효하지 않은 yn가 입력되었습니다: '${yn}'. ('y', 'n', 'none' 만 가능)`);
+            test.fail(true, `유효하지 않은 option이 입력되었습니다: '${option}'. ('ok', 'cancel', 'none' 만 가능)`);
             return;
         }
 

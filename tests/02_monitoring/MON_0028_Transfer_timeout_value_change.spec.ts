@@ -24,13 +24,13 @@ test('MON_0028 Transfer timeout value change', async ({ page }) => {
     const defaultTimeoutValue = await equipValueLocator.nth(2).textContent();
 
     // Equipment timeout 값 변경
-    await equipment.equipState('timeout', '100000', 'y');
+    await equipment.equipState('timeout', '100000', 'ok');
     const changedTimeoutValue = page.locator('.value-box').nth(2);
     // 변경된 timeout 값 확인
     expect(await changedTimeoutValue.textContent()).toBe('100000');
 
     // default 값으로 복원
-    await equipment.equipState('timeout', defaultTimeoutValue ?? '6000', 'y');
+    await equipment.equipState('timeout', defaultTimeoutValue ?? '6000', 'ok');
     // 복원된 timeout 값 확인
     const restoredTimeoutValue = page.locator('.value-box').nth(2);    
     expect(await restoredTimeoutValue.textContent()).toBe(defaultTimeoutValue);

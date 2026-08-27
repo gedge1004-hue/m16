@@ -20,9 +20,9 @@ test('MON_0017 Control state - OFFLINE', async ({ page }) => {
     // Monitoring 페이지 진입
     await menuPage.navigateTo('monitoring');
     // Control online remote 클릭
-    await equipment.conState('onRemote', 'y');
+    await equipment.conState('onRemote', 'ok');
     // Control offline 클릭
-    await equipment.conState('offline', 'y');
+    await equipment.conState('offline', 'ok');
     // Control state 값 영역
     const stateValueBox = page.locator('.state-row').nth(1).locator('.state-value');
     // Control offline 및 배경까지 이미지 비교

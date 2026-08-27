@@ -24,7 +24,7 @@ test('MON_0008 Communication state - Command popup cancel', async ({ page }) => 
     // communication default 및 배경까지 이미지 비교
     await expect(stateValueBox).toHaveScreenshot('communication_default_state.png');
     // 팝업 내 Cancel 클릭
-    await equipment.commState('none', 'n');
+    await equipment.commState('none', 'cancel');
     // communication default 및 배경까지 이미지 비교
     await expect(stateValueBox).toHaveScreenshot('communication_default_state.png');
 });

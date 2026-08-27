@@ -24,13 +24,13 @@ test('MON_0026 Equipment model value change', async ({ page }) => {
     const defaultModelValue = await equipValueLocator.first().textContent();
 
     // Equipment model 값 변경
-    await equipment.equipState('model', 'test_model', 'y');
+    await equipment.equipState('model', 'test_model', 'ok');
     const changedModelValue = page.locator('.value-box').first();
     // 변경된 model 값 확인
     expect(await changedModelValue.textContent()).toBe('test_model');
 
     // default 값으로 복원
-    await equipment.equipState('model', defaultModelValue ?? 'T302', 'y');
+    await equipment.equipState('model', defaultModelValue ?? 'T302', 'ok');
     // 복원된 model 값 확인
     const restoredModelValue = page.locator('.value-box').first();    
     expect(await restoredModelValue.textContent()).toBe(defaultModelValue);

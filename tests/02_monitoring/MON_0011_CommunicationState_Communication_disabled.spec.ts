@@ -20,7 +20,7 @@ test('MON_0011 Communication state - Communication disabled', async ({ page }) =
     // Monitoring 페이지 진입
     await menuPage.navigateTo('monitoring');
     // Communication State command > disable > ok 클릭
-    await equipment.commState('disable', 'y');
+    await equipment.commState('disable', 'ok');
     // communication state 값 영역
     const stateValueBox = page.locator('.state-row').first().locator('.state-value');
     // Disabled 및 배경까지 이미지 비교
