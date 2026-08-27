@@ -20,7 +20,7 @@ export default defineConfig({
   // 테스트 시간 60초
   timeout: 150000,
   // 스냅샷 파일명에서 chrome-win32 등을 제거하는 설정
-  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}{ext}',
+  snapshotPathTemplate: '{testDir}/{testFileDir}/snapshots/{testFileName}-snapshots/{arg}{ext}',
   expect: {
     // 10초로 증가 (10 * 1000ms)
     timeout: 10000,
