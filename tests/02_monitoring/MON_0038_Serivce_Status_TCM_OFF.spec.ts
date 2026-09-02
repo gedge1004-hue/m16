@@ -4,7 +4,7 @@ import { LoginPage } from '@login';
 import { MenuPage } from '@menuPage';
 import { Control } from '@control';
 
-test('MON_0040 Service status TCM OFF', async ({ page }) => {
+test('MON_0038Service status TCM OFF', async ({ page }) => {
 
     const common = new Common(page);
     const loginPage = new LoginPage(page);

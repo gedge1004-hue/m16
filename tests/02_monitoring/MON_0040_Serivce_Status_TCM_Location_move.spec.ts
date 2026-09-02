@@ -3,7 +3,7 @@ import { Common } from '@common';
 import { LoginPage } from '@login';
 import { MenuPage } from '@menuPage';
 
-test('MON_0042 Service status TCM Location move', async ({ page }) => {
+test('MON_0040 Service status TCM Location move', async ({ page }) => {
 
     const common = new Common(page);
     const loginPage = new LoginPage(page);

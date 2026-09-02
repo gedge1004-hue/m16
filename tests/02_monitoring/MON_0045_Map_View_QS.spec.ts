@@ -3,7 +3,7 @@ import { Common } from '@common';
 import { LoginPage } from '@login';
 import { MenuPage } from '@menuPage';
 
-test('MON_0047 Map View - QS', async ({ page }) => {
+test('MON_0045 Map View - QS', async ({ page }) => {
 
     const common = new Common(page);
     const loginPage = new LoginPage(page);
