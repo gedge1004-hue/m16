@@ -34,10 +34,7 @@ test('MON_0051 Map View - Search Zone', async ({ page }) => {
     await page.waitForTimeout(2000);
     
     // 해당 지도 Canvas 영역만 정확하게 스크린샷 촬영
-    await expect(mapCanvas).toHaveScreenshot('map_search_zone.png', {
-        maxDiffPixelRatio: 0.05, // 지도의 미세한 렌더링 오차 방지 (5% 허용)
-        threshold: 0.2
-    });
+    await expect(mapCanvas).toHaveScreenshot('map_search_zone.png');
 
     await common.deleteAllTasks();
 });

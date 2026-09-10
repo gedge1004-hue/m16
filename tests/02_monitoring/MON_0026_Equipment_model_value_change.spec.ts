@@ -26,6 +26,7 @@ test('MON_0026 Equipment model value change', async ({ page }) => {
     // Equipment model 값 변경
     await equipment.equipState('model', 'test_model', 'ok');
     const changedModelValue = page.locator('.value-box').first();
+    await page.waitForTimeout(1000); // 값 변경 후 잠시 대기
     // 변경된 model 값 확인
     expect(await changedModelValue.textContent()).toBe('test_model');
 
@@ -34,5 +35,7 @@ test('MON_0026 Equipment model value change', async ({ page }) => {
     // 복원된 model 값 확인
     const restoredModelValue = page.locator('.value-box').first();    
     expect(await restoredModelValue.textContent()).toBe(defaultModelValue);
+
+    await common.deleteAllTasks();
 
 });

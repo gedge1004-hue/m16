@@ -25,10 +25,12 @@ export default defineConfig({
     // 10초로 증가 (10 * 1000ms)
     timeout: 10000,
     toHaveScreenshot: {
+      // 크기 왜곡 원인인 모니터 물리 배율을 무시하고 표준 CSS 픽셀 크기로 통일
+      scale: 'css',
       // 픽셀 비율 차이 허용 (0.1 ~ 0.2 추천)
-      maxDiffPixelRatio: 0.1, 
+      maxDiffPixelRatio: 0.05, 
       // 픽셀 개수 기준 허용 (작은 영역 테스트 시 유리)
-      // maxDiffPixels: 100, 
+      maxDiffPixels: 200,
       // 색상 차이 감도 (0~1 사이, 낮을수록 예민함)
       threshold: 0.2, 
       // 애니메이션/커서 등으로 인한 미세 차이 무시

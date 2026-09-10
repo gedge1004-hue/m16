@@ -26,6 +26,8 @@ test('MON_0027 Equipment name value change', async ({ page }) => {
     // Equipment name 값 변경
     await equipment.equipState('name', 'test_name', 'ok');
     const changedNameValue = page.locator('.value-box').nth(1);
+    // 값 변경 후 잠시 대기
+    await page.waitForTimeout(1000);
     // 변경된 name 값 확인
     expect(await changedNameValue.textContent()).toBe('test_name');
 

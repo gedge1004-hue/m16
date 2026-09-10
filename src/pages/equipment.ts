@@ -13,8 +13,10 @@ export class Equipment {
      * Communication state
      */
     async commState(stateValue: string, option: string) {
-        // 기본 값으로 시작
+        
         const commState = this.page.locator('.state-row').first();
+        
+        // 기본 값으로 시작
         await commState.click();
         await this.page.locator('.el-check-tag', { hasText: 'Enable' }).click();
         await this.page.getByRole('button', { name: 'OK', exact: true }).click();
@@ -128,7 +130,7 @@ export class Equipment {
 
         } else {
             // 값 입력
-            const inputField = this.page.locator('.el-input__inner').nth(1);
+            const inputField = this.page.locator('.el-input__inner').nth(4);
             await inputField.click();
             await inputField.fill(equipValue);
         }

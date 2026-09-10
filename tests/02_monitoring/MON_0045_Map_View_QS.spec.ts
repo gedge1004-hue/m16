@@ -50,12 +50,11 @@ test('MON_0045 Map View - QS', async ({ page }) => {
     // 💡전체 캔버스에서 초록색 사각형(좌상단 구석)만 쏙 잘라내기
     await expect(page).toHaveScreenshot('map_qs_zone.png', {
         clip: {
-            x: 70,      // 캔버스 왼쪽 끝 시작점
+            x: 78,      // 캔버스 왼쪽 끝 시작점
             y: 320,     // 상단 카메라 아이콘 아래부터 시작하도록 Y축 조정
             width: 70,  // 초록색 사각형 가로 크기만큼 (픽셀)
             height: 70  // 초록색 사각형 세로 크기만큼 (픽셀)
         },
-        maxDiffPixels: 50, // 미세한 렌더링 오차 방지
-        threshold: 0.2
+        maxDiffPixels: 50 // 미세한 렌더링 오차 방지
     });
 });

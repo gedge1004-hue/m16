@@ -45,8 +45,7 @@ test('MON_0046 Map View - FOUP 미선택', async ({ page }) => {
             width: 70,  // 초록색 사각형 가로 크기만큼 (픽셀)
             height: 70  // 초록색 사각형 세로 크기만큼 (픽셀)
         },
-        maxDiffPixels: 50, // 미세한 렌더링 오차 방지
-        threshold: 0.2
+        maxDiffPixels: 50 // 미세한 렌더링 오차 방지
     });
 
     await common.deleteAllTasks();

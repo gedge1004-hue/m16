@@ -26,6 +26,8 @@ test('MON_0028 Transfer timeout value change', async ({ page }) => {
     // Equipment timeout 값 변경
     await equipment.equipState('timeout', '100000', 'ok');
     const changedTimeoutValue = page.locator('.value-box').nth(2);
+    // 값 변경 후 잠시 대기
+    await page.waitForTimeout(1000);
     // 변경된 timeout 값 확인
     expect(await changedTimeoutValue.textContent()).toBe('100000');
 

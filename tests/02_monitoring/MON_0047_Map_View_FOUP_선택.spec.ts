@@ -22,6 +22,8 @@ test('MON_0047 Map View - FOUP 선택', async ({ page }) => {
     const mapCanvas = page.locator('.canvas-wrapper canvas');
     await mapCanvas.waitFor({ state: 'visible' });
 
+    await common.
+
     await page.mouse.click(73, 340, { button: 'right' });
     // 클릭 후 동작 대기
     await page.waitForTimeout(1500);
@@ -37,7 +39,7 @@ test('MON_0047 Map View - FOUP 선택', async ({ page }) => {
      // 클릭 후 동작 대기
     await page.waitForTimeout(1500);
     // Carrier 클릭
-    await page.mouse.click(73, 340, { button: 'left' });
+    await page.mouse.click(90, 340, { button: 'left' });
     // 전체 캔버스에서 초록색 사각형(좌상단 구석)만 쏙 잘라내기
     await expect(page).toHaveScreenshot('map_foup_선택_zone.png', {
         clip: {

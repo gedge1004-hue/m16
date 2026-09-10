@@ -43,10 +43,7 @@ test('MON_0048 Map View - Zoom IN', async ({ page }) => {
     await page.waitForTimeout(2000);
 
     // 해당 지도 Canvas 영역만 정확하게 스크린샷 촬영
-    await expect(mapCanvas).toHaveScreenshot('map_zoom_in.png', {
-        maxDiffPixelRatio: 0.05, // 지도의 미세한 렌더링 오차 방지 (5% 허용)
-        threshold: 0.2
-    });
+    await expect(mapCanvas).toHaveScreenshot('map_zoom_in.png');
 
     await common.deleteAllTasks();
 });
