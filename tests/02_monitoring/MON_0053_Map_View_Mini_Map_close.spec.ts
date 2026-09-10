@@ -29,6 +29,12 @@ test('MON_0053 Map View - Mini Map Close', async ({ page }, testInfo) => {
 
     await page.waitForTimeout(2000);
 
+    // // 해당 지도 Canvas 영역만 정확하게 스크린샷 촬영
+    // await expect(mapCanvas).toHaveScreenshot('map_mini_map_open.png', {
+    //     maxDiffPixelRatio: 0.05, // 지도의 미세한 렌더링 오차 방지 (5% 허용)
+    //     threshold: 0.2
+    // });
+
     const testFileFilepath = testInfo.file; // 현재 실행 중인 spec.ts의 전체 절대 경로
     const testFileDir = path.dirname(testFileFilepath); // 파일이 속한 폴더 경로 (02_monitoring)
     const testFileName = path.basename(testFileFilepath); // 파일명 (MON_0053_...spec.ts)

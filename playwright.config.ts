@@ -63,9 +63,8 @@ export default defineConfig({
 
     // 브라우저 실행 설정
     browserName: 'chromium',
-    channel: 'chrome',
-    // 실제 브라우저 창을 띄우고 테스트 진행
-    headless: false, 
+    channel: 'chrome',    
+    headless: true, // 실제 브라우저 창을 띄우냐 마냐 (false=창, true=백그라운드)
     
     // 현재 창 최대 크기 구현 (에러 방지형)
     // viewport: null 대신 실제 모니터 해상도를 직접 입력하는 것이 가장 안전합니다.
