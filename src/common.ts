@@ -95,4 +95,40 @@ export class Common {
 
         console.log('🎉 수집된 모든 ID 항목의 처리가 완료되었습니다.');
     }
+
+    async initializeMouseTracker() {
+        await this.page.addInitScript(() => {
+            // 실행할 마우스 트래커 주입 핵심 로직을 함수로 분리
+            const injectTracker = () => {
+                if (document.getElementById('playwright-mouse-pointer')) return;
+                
+                const box = document.createElement('div');
+                box.id = 'playwright-mouse-pointer';
+                box.style.position = 'fixed';
+                box.style.top = '0';
+                box.style.left = '0';
+                box.style.width = '14px';
+                box.style.height = '14px';
+                box.style.background = 'rgba(255, 0, 0, 0.8)';
+                box.style.border = '2px solid white';
+                box.style.borderRadius = '50%';
+                box.style.pointerEvents = 'none';
+                box.style.zIndex = '999999';
+                box.style.transition = 'all 0.08s ease-out';
+                document.body.appendChild(box);
+
+                window.addEventListener('mousemove', (e) => {
+                    box.style.left = `${e.clientX - 7}px`;
+                    box.style.top = `${e.clientY - 7}px`;
+                });
+            };
+
+            // 이미 DOM이 다 로드되어 완료(complete/interactive) 상태라면 즉시 실행, 아니라면 이벤트 대기
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', injectTracker);
+            } else {
+                injectTracker();
+            }
+        });
+    }
 }
