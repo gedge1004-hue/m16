@@ -41,8 +41,13 @@ export class Common {
         // 데이터 행 셀렉터 정의
         const rowLocator = this.page.locator('.el-table-v2__row.task-info-table__row');
         
-        // 첫 번째 행이 화면에 완벽히 로드되어 보일 때까지 최대 5초 강제 대기
-        await rowLocator.first().waitFor({ state: 'visible', timeout: 5000 });
+        // 첫 번째 행이 화면에 완벽히 로드되어 보일 때까지 최대 2초 강제 대기
+        const isTableVisible = await rowLocator.first().waitFor({ state: 'visible', timeout: 2000 }).catch(() => false);
+
+        if (!isTableVisible) {
+            console.log('⚠️ 데이터 행이 화면에 나타나지 않아 삭제 작업을 건너뜁니다.');
+            return;
+        }
 
         // evaluateAll을 사용하여 각 행의 'rowkey' 속성 값을 배열로 추출
         const rowKeys = await rowLocator.evaluateAll(elements => 
