@@ -121,8 +121,6 @@ export class MapView {
 
         await this.miniMapOnOff('N');
 
-        await this.page.waitForTimeout(2000);
-
         await this.page.mouse.click(x, y, { button: 'right' });
 
         // // 우클릭 후 팝업 박스가 화면에 나타날 때까지 대기
@@ -134,7 +132,140 @@ export class MapView {
         // 팝업 내부의 OK 버튼 클릭
         await this.page.locator('.el-dialog__footer .el-button--success', { hasText: 'OK' }).click(); 
 
-        await this.page.waitForTimeout(2000);
+        await this.page.waitForTimeout(3000);
 
     }
+
+    async addJunction(x: number, y: number): Promise<string> {
+        // Canvas 요소 지정 및 대기
+        const mapCanvas = this.page.locator('.canvas-wrapper canvas');
+        await mapCanvas.waitFor({ state: 'visible' });
+
+        await this.miniMapOnOff('N');
+        
+        // 최초 우클릭하여 메뉴 열기
+        await this.page.mouse.click(x, y, { button: 'right' });
+
+        // 우클릭 후 팝업 박스가 화면에 나타날 때까지 대기
+        const popoverBox = this.page.locator('.popover-box');
+        await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
+
+        // 'Add Junction' 메뉴 클릭 (등록 수행)
+        await popoverBox.locator('.item', { hasText: 'Add Junction' }).click(); 
+
+        // ✨ 중요: 서버 및 Canvas 백엔드에 데이터가 반영되고, 최초 팝업이 완전히 닫힐 때까지 대기
+        await popoverBox.waitFor({ state: 'hidden', timeout: 3000 });
+        await this.page.waitForTimeout(1000); // 캔버스 갱신 유예 시간
+
+        // 재확인을 위해 동일 좌표 우클릭 (새로 생성된 Junction 위를 우클릭하게 됨)
+        await this.page.mouse.click(x, y, { button: 'right' });
+        await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
+
+        // 'Add Junction: 숫자' 형태로 메뉴가 변경되었는지 확인
+        const junctionItem = popoverBox.locator('.item', { hasText: 'Add Junction:' });
+        
+        // 화면에 정상 노출되는지 검증
+        await expect(junctionItem).toBeVisible({ timeout: 3000 });
+        await expect(junctionItem).toContainText(/Add Junction:\s*\d+/);
+
+        // 후속 테스트(예: 삭제 등)나 로그 확인을 위해 생성된 ID 번호를 추출하여 리턴
+        const fullText = await junctionItem.innerText();
+        const match = fullText.match(/\d+/);
+        const junctionId = match ? match[0] : '';
+        
+        console.log(`✅ Junction 등록 및 재확인 완료 (생성된 ID: ${junctionId})`);
+        
+        // 다른 곳을 클릭하여 테스트 진행에 방해 안 되게 재확인 팝업을 닫아줌
+        await this.page.mouse.click(10, 10); 
+        
+        return junctionId;
+    }
+
+    async setDestination(x: number, y: number): Promise<string> {
+        // Canvas 요소 지정 및 대기
+        const mapCanvas = this.page.locator('.canvas-wrapper canvas');
+        await mapCanvas.waitFor({ state: 'visible' });
+
+        await this.miniMapOnOff('N');
+        
+        // 최초 우클릭하여 메뉴 열기
+        await this.page.mouse.click(x, y, { button: 'right' });
+
+        // 우클릭 후 팝업 박스가 화면에 나타날 때까지 대기
+        const popoverBox = this.page.locator('.popover-box');
+        await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
+
+        // 'Set Destination' 메뉴 클릭 (등록 수행)
+        await popoverBox.locator('.item', { hasText: 'Set Destination' }).click(); 
+
+        // ✨ 중요: 서버 및 Canvas 백엔드에 데이터가 반영되고, 최초 팝업이 완전히 닫힐 때까지 대기
+        await popoverBox.waitFor({ state: 'hidden', timeout: 3000 });
+        await this.page.waitForTimeout(1000); // 캔버스 갱신 유예 시간
+
+        // 재확인을 위해 동일 좌표 우클릭 (새로 생성된 Junction 위를 우클릭하게 됨)
+        await this.page.mouse.click(x, y, { button: 'right' });
+        await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
+
+        // 'Set Destination' 메뉴가 변경되었는지 확인
+        const destinationItem = popoverBox.locator('.item', { hasText: 'Set Destination' });
+        
+        // 화면에 정상 노출되는지 검증
+        await expect(destinationItem).toBeVisible({ timeout: 3000 });
+        await expect(destinationItem).toContainText(/Set Destination/);
+
+        // 후속 테스트(예: 삭제 등)나 로그 확인을 위해 생성된 ID 번호를 추출하여 리턴
+        const fullText = await destinationItem.innerText();
+        const match = fullText.match(/\d+/);
+        const destinationId = match ? match[0] : '';
+        
+        console.log(`✅ Destination 설정 및 재확인 완료 (생성된 ID: ${destinationId})`);
+        
+        // 다른 곳을 클릭하여 테스트 진행에 방해 안 되게 재확인 팝업을 닫아줌
+        await this.page.mouse.click(10, 10); 
+        
+        return destinationId;
+    }
+
+    async clear() {
+        const x = 73;
+        const y = 340;
+
+        // Canvas 요소 지정 및 대기
+        const mapCanvas = this.page.locator('.canvas-wrapper canvas');
+        await mapCanvas.waitFor({ state: 'visible' });
+
+        await this.miniMapOnOff('N');
+        
+        // 최초 우클릭하여 메뉴 열기
+        await this.page.mouse.click(x, y, { button: 'right' });
+
+        // 우클릭 후 팝업 박스가 화면에 나타날 때까지 대기
+        const popoverBox = this.page.locator('.popover-box');
+        await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
+
+        // 'Clear' 메뉴 클릭 (초기화 수행)
+        await popoverBox.locator('.item', { hasText: 'Clear' }).click(); 
+
+        // ✨ [검증 단계 시작] 'Clear' 클릭 후 기존 팝업이 완전히 닫힐 때까지 대기
+        await popoverBox.waitFor({ state: 'hidden', timeout: 3000 });
+        await this.page.waitForTimeout(1000); // 캔버스 그래픽 및 데이터 반영 유예 시간
+
+        // 상태 재확인을 위해 동일한 좌표(73, 340)에 다시 우클릭
+        await this.page.mouse.click(x, y, { button: 'right' });
+        await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
+
+        // Add Junction 값이 'none'으로 바뀌었는지 확인 (정확히 none이 포함되어 있는지 확인)
+        const junctionClearItem = popoverBox.locator('.item', { hasText: 'Add Junction: none' });
+        await expect(junctionClearItem).toBeVisible({ timeout: 3000 });
+
+        // Set Destination 값도 'none'인지 확인
+        const destinationClearItem = popoverBox.locator('.item', { hasText: 'Set Destination: none' });
+        await expect(destinationClearItem).toBeVisible({ timeout: 3000 });
+
+        console.log('✅ Clear 기능 정상 작동 확인: 두 값 모두 none으로 초기화되었습니다.');
+
+        // 검증 완료 후 다음 테스트에 방해되지 않도록 여백을 클릭해 팝업을 닫아줌
+        await this.page.mouse.click(10, 10);
+    }
+
 }
