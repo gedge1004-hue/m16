@@ -11,8 +11,13 @@ test('MON_0001 로그인 실패', async ({ page }) => {
     await common.goto();
     // 언어 변경(US)    
     await common.changeLanguage('us');
-    // 로그인 진행
-    await loginPage.login('123', '123');
+    // ID 입력
+    await page.getByPlaceholder('ID').fill('123');
+    // Password 입력
+    await page.getByPlaceholder('Password').fill('123');
+    // login 버튼 클릭
+    await page.getByRole('button', { name: 'Login', exact: true }).click();
     // 로그인 실패 문구 확인
-    await expect(page.getByText('Failed Login', { exact: true })).toBeVisible({ timeout: 5000 });
+    const errorMessage = page.locator('.el-message__content', { hasText: 'Failed Login' });
+    await errorMessage.waitFor({ state: 'visible', timeout: 3000 });
 });

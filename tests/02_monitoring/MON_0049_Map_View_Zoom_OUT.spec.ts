@@ -2,12 +2,14 @@ import { test, expect } from '@playwright/test';
 import { Common } from '@common';
 import { LoginPage } from '@login';
 import { MenuPage } from '@menuPage';
+import { MapView } from '@mapView';
 
 test('MON_0049 Map View - Zoom OUT', async ({ page }) => {
 
     const common = new Common(page);
     const loginPage = new LoginPage(page);
     const menuPage = new MenuPage(page);
+    const mapView = new MapView(page);
     
     // GUI 진입
     await common.goto();
@@ -21,6 +23,9 @@ test('MON_0049 Map View - Zoom OUT', async ({ page }) => {
     // Canvas 요소 지정 및 대기
     const mapCanvas = page.locator('.canvas-wrapper canvas');
     await mapCanvas.waitFor({ state: 'visible' });
+
+    await mapView.miniMapOnOff('N');
+    await page.waitForTimeout(1000);
 
     // Canvas의 중심부 좌표 구하기
     const box = await mapCanvas.boundingBox();

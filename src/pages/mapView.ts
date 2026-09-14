@@ -25,13 +25,12 @@ export class MapView {
         const currentTestInfo = test.info();
         const testFileFilepath = currentTestInfo.file; 
         const testFileDir = path.dirname(testFileFilepath); 
-        const testFileName = path.basename(testFileFilepath); 
     
         // 닫힌 상태를 기준으로 대조하기 위해 파일명 조립 (map-mini-map-close.png)
         const snapshotPath = path.join(
-            testFileDir,
-            'snapshots',
-            `${testFileName}-snapshots`,
+            testFileDir,        // 'tests/02_monitoring' 파일 위치
+            'snapshots',        // 'snapshots'
+            'MINI_MAP',         // 이미지에 보이는 'MINI_MAP' 폴더 직접 지정
             'map-mini-map-close.png'
         );
     
@@ -113,5 +112,29 @@ export class MapView {
         } else {
             console.error('❌ 하단 클릭 실행 실패: 캔버스 box 좌표 정보가 유효하지 않습니다.');
         }
+    }
+
+    async installCarrier(x: number, y: number) {
+        // Canvas 요소 지정 및 대기
+        const mapCanvas = this.page.locator('.canvas-wrapper canvas');
+        await mapCanvas.waitFor({ state: 'visible' });
+
+        await this.miniMapOnOff('N');
+
+        await this.page.waitForTimeout(2000);
+
+        await this.page.mouse.click(x, y, { button: 'right' });
+
+        // // 우클릭 후 팝업 박스가 화면에 나타날 때까지 대기
+        const popoverBox = this.page.locator('.popover-box');
+        await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
+
+        // 팝업 박스 내부의 여러 item 중 'Install Carrier' 텍스트를 정확히 매칭하여 클릭
+        await popoverBox.locator('.item', { hasText: 'Install Carrier' }).click();
+        // 팝업 내부의 OK 버튼 클릭
+        await this.page.locator('.el-dialog__footer .el-button--success', { hasText: 'OK' }).click(); 
+
+        await this.page.waitForTimeout(2000);
+
     }
 }

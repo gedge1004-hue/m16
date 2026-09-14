@@ -38,16 +38,25 @@ export class Common {
     }
 
     async deleteAllTasks() {
+        await this.popupClose(); // 팝업이 떠 있다면 닫기
+        
         // 데이터 행 셀렉터 정의
         const rowLocator = this.page.locator('.el-table-v2__row.task-info-table__row');
         
-        // 첫 번째 행이 화면에 완벽히 로드되어 보일 때까지 최대 2초 강제 대기
-        const isTableVisible = await rowLocator.first().waitFor({ state: 'visible', timeout: 2000 }).catch(() => false);
+        // 1. 첫 번째 행이 화면에 로드될 때까지 최대 2초 대기 (실패해도 에러로 멈추지 않도록 catch 처리)
+        await rowLocator.first().waitFor({ state: 'visible', timeout: 2000 }).catch(() => {
+            console.log('⏱️ 2초 동안 데이터 행이 로드되지 않았습니다.');
+        });
 
-        if (!isTableVisible) {
+        // 2. 실제로 행이 1개 이상 존재하는지 개수 확인
+        const rowCount = await rowLocator.count();
+
+        if (rowCount === 0) {
             console.log('⚠️ 데이터 행이 화면에 나타나지 않아 삭제 작업을 건너뜁니다.');
             return;
         }
+
+        console.log(`📊 현재 화면에 로드된 행의 개수: ${rowCount}개`);
 
         // evaluateAll을 사용하여 각 행의 'rowkey' 속성 값을 배열로 추출
         const rowKeys = await rowLocator.evaluateAll(elements => 
@@ -92,7 +101,7 @@ export class Common {
                 console.log(`✅ ID [${rowKey}] 항목의 연관 작업 완료`);
 
                 // 데이터가 지워지고 가상 스크롤이 재정렬될 수 있도록 유예 시간 부여
-                await this.page.waitForTimeout(1500);
+                await this.page.waitForTimeout(8000);
             } else {
                 console.log(`⏩ ID [${rowKey}] 항목이 이미 화면에 없어 건너뜁니다.`);
             }
@@ -135,5 +144,21 @@ export class Common {
                 injectTracker();
             }
         });
+    }
+
+    async popupClose() {
+        const warningHeader = this.page.locator('header.el-dialog__header', { hasText: 'Warning' });
+
+        // 만약 호출하는 시점에 이미 팝업이 떠 있다면 0초 만에 바로 통과
+        try {
+            await warningHeader.waitFor({ state: 'visible', timeout: 1000 });
+        } catch (e) {
+            // 1초 동안 기다렸는데도 안 뜨면, 팝업이 없는 것으로 간주하고 함수를 종료 (Fail 안 됨)
+            return;
+        }
+        // 팝업이 확인되었으므로 버튼을 클릭해 닫음
+        await warningHeader.locator('button').click();        
+        // 버튼 누른 후 팝업이 완전히 사라질 때까지 대기
+        await expect(warningHeader).toBeHidden();
     }
 }

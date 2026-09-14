@@ -47,6 +47,8 @@ test('MON_0044 Map View - LD', async ({ page }) => {
         await page.waitForTimeout(300);
     }
 
+    await page.waitForTimeout(3000);
+    
     // 💡전체 캔버스에서 초록색 사각형(좌상단 구석)만 쏙 잘라내기
     await expect(page).toHaveScreenshot('map_ld_zone.png', {
         clip: {
