@@ -10,7 +10,7 @@ test('MON_0051 Map View - Search Zone', async ({ page }) => {
     const menuPage = new MenuPage(page);
     
     //마우스 트래커
-    await common.initializeMouseTracker();
+    // await common.initializeMouseTracker();
 
     // GUI 진입
     await common.goto();

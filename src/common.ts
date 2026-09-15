@@ -39,6 +39,7 @@ export class Common {
 
     async deleteAllTasks() {
         await this.popupClose(); // 팝업이 떠 있다면 닫기
+        await this.page.mouse.click(160, 340, { button: 'left' }); // 좌표 클릭으로 어떤 팝업이 떠 있으면 닫기
         
         // 데이터 행 셀렉터 정의
         const rowLocator = this.page.locator('.el-table-v2__row.task-info-table__row');
@@ -69,6 +70,7 @@ export class Common {
 
         // 가져온 rowkey들을 순차적으로 반복하며 셀 더블 클릭 및 삭제 진행
         for (const rowKey of rowKeys) {
+            
             // ✨ 핵심 수정: 중복 렌더링에 대비해 무조건 첫 번째 매칭 요소를 바라보도록 .first() 추가
             const targetCell = this.page.locator(`.el-table-v2__cell-text[title="${rowKey}"]`).first();
 
@@ -106,7 +108,7 @@ export class Common {
                 console.log(`⏩ ID [${rowKey}] 항목이 이미 화면에 없어 건너뜁니다.`);
             }
         }
-
+        
         console.log('🎉 수집된 모든 ID 항목의 처리가 완료되었습니다.');
     }
 

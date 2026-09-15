@@ -12,7 +12,7 @@ test('MON_0055 Map View - Mini Map Click Move', async ({ page }, testInfo) => {
     const mapView = new MapView(page);
     
     //마우스 트래커
-    await common.initializeMouseTracker();
+    // await common.initializeMouseTracker();
 
     // GUI 진입
     await common.goto();

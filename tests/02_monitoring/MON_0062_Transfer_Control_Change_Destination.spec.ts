@@ -3,13 +3,15 @@ import { Common } from '@common';
 import { LoginPage } from '@login';
 import { MenuPage } from '@menuPage';
 import { MapView } from '@mapView';
+import { TransferControl } from '@transferControl';
 
-test('MON_0057 Map View - Add Junction', async ({ page }) => {
+test('MON_0062 Transfer Control - Change Destination', async ({ page }) => {
 
     const common = new Common(page);
     const loginPage = new LoginPage(page);
     const mapView = new MapView(page);
     const menuPage = new MenuPage(page);
+    const transferControl = new TransferControl(page);
     
     // GUI 진입
     await common.goto();
@@ -22,13 +24,21 @@ test('MON_0057 Map View - Add Junction', async ({ page }) => {
 
     await mapView.installCarrier(73, 340);
 
-    // // Carrier 클릭
+    // Carrier 클릭
     await page.mouse.click(73, 340, { button: 'left' });
 
-    // 클릭 후 동작 대기
-    await page.waitForTimeout(2000);
+    // Task State 기존 확인
+    const taskState = page.locator('.el-table-v2__cell-text').nth(6);
+    await expect(taskState).toHaveText('READY');
 
     await mapView.addJunction(520, 385);
 
+    // Chage Destination 버튼 클릭 후 팝업에서 OK 버튼 클릭
+    await transferControl.changeDestination('Y');
+
+    // Task State 변경 확인
+    await expect(taskState).toHaveText('TRANSFERRING');
+
     await common.deleteAllTasks();
+    
 });

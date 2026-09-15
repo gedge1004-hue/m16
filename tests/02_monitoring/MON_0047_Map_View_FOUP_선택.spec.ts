@@ -22,9 +22,9 @@ test('MON_0047 Map View - FOUP 선택', async ({ page }) => {
 
     await mapView.installCarrier(160, 340);
 
-    // // Carrier 클릭
+    // Carrier 클릭
     await page.mouse.click(160, 340, { button: 'left' });
-     // 클릭 후 동작 대기
+    // 클릭 후 동작 대기
     await page.waitForTimeout(1000);
 
     // 전체 캔버스에서 초록색 사각형(좌상단 구석)만 쏙 잘라내기

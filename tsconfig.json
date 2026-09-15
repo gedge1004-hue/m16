@@ -19,7 +19,8 @@
             "@menuPage": ["./src/pages/menu.ts"],
             "@equipment": ["./src/pages/equipment.ts"],
             "@control": ["./src/pages/control.ts"],
-            "@mapView": ["./src/pages/mapView.ts"]
+            "@mapView": ["./src/pages/mapView.ts"],
+            "@transferControl": ["./src/pages/transferControl.ts"]
         }
     },
     // TypeScript가 테스트 파일과 설정 파일을 포함하도록 지정
