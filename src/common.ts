@@ -61,9 +61,9 @@ export class Common {
 
         // evaluateAll을 사용하여 각 행의 'rowkey' 속성 값을 배열로 추출
         const rowKeys = await rowLocator.evaluateAll(elements => 
-            elements
+            Array.from(new Set(elements
                 .map(el => el.getAttribute('rowkey'))
-                .filter((key): key is string => key !== null && key.trim() !== '')
+                .filter((key): key is string => key !== null && key.trim() !== '')))
         );
 
         console.log('가져온 모든 rowkey 목록:', rowKeys);

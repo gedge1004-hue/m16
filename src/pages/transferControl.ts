@@ -78,4 +78,64 @@ export class TransferControl {
             throw new Error(`Invalid argument for yn: ${yn}. Expected 'Y' or 'N'.`);
         }
     }
+
+    async pauseAll(yn: string) {
+        // 글자가 정확히 일치하는 요소를 지정
+        const forceReserveButton = this.page.getByText('Pause All', { exact: true });
+        await forceReserveButton.click();
+        // Pause All 팝업 확인
+        const popupMessage = this.page.locator('.el-text.description');
+        await expect(popupMessage).toHaveText(/Task pause all/);
+        if (yn === 'Y') {
+            // "OK" 버튼 클릭
+            const okButton = this.page.getByRole('button', { name: 'OK' });
+            await okButton.click();
+        } else if (yn === 'N') {
+            // "Cancel" 버튼 클릭
+            const cancelButton = this.page.getByRole('button', { name: 'Cancel' });
+            await cancelButton.click();
+        } else {
+            throw new Error(`Invalid argument for yn: ${yn}. Expected 'Y' or 'N'.`);
+        }
+    }
+
+    async resumeAll(yn: string) {
+        // 글자가 정확히 일치하는 요소를 지정
+        const forceReserveButton = this.page.getByText('Resume All', { exact: true });
+        await forceReserveButton.click();
+        // Resume All 팝업 확인
+        const popupMessage = this.page.locator('.el-text.description');
+        await expect(popupMessage).toHaveText(/Task Resume all/);
+        if (yn === 'Y') {
+            // "OK" 버튼 클릭
+            const okButton = this.page.getByRole('button', { name: 'OK' });
+            await okButton.click();
+        } else if (yn === 'N') {
+            // "Cancel" 버튼 클릭
+            const cancelButton = this.page.getByRole('button', { name: 'Cancel' });
+            await cancelButton.click();
+        } else {
+            throw new Error(`Invalid argument for yn: ${yn}. Expected 'Y' or 'N'.`);
+        }
+    }
+
+    async reverseChangeDestination(yn: string) {
+        // 글자가 정확히 일치하는 요소를 지정
+        const forceReserveButton = this.page.getByText('Reverse Change Destination', { exact: true });
+        await forceReserveButton.click();
+        // Reverse Change Destination 팝업 확인
+        const popupMessage = this.page.locator('.el-dialog__title').first();
+        await expect(popupMessage).toHaveText(/Reverse Change Destination/);
+        if (yn === 'Y') {
+            // "OK" 버튼 클릭
+            const okButton = this.page.getByRole('button', { name: 'OK' });
+            await okButton.click();
+        } else if (yn === 'N') {
+            // "Cancel" 버튼 클릭
+            const cancelButton = this.page.getByRole('button', { name: 'Cancel' });
+            await cancelButton.click();
+        } else {
+            throw new Error(`Invalid argument for yn: ${yn}. Expected 'Y' or 'N'.`);
+        }
+    }
 }
