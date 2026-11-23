@@ -2,27 +2,38 @@ import { test, expect } from '@playwright/test';
 import { Common } from '@common';
 import { LoginPage } from '@login';
 import { MenuPage } from '@menuPage';
-import { MapView } from '@mapView';
-import { TransferControl } from '@transferControl';
+import { SingleAxisControl } from '@singleAxisControl';
 
-test('MON_0080 Single - Reserved Task With Selection', async ({ page }) => {
+test('MON_0080 Single Axis Control - Select Zone Status', async ({ page }) => {
     const common = new Common(page);
     const loginPage = new LoginPage(page);
     const menuPage = new MenuPage(page);
-    const mapView = new MapView(page);
-    const transferControl = new TransferControl(page);
+    const singleAxisControl = new SingleAxisControl(page);
 
     await common.goto();
     await common.changeLanguage('us');
     await loginPage.login('tester', 'tester');
     await menuPage.navigateTo('monitoring');
-    await common.deleteAllTasks();
-    
-    // Zone 비교를 위한 해당 좌표의 Zone 클릭
-    await page.mouse.click(520, 385, { button: 'left' });
 
-   
+    await page.getByRole('tab', { name: 'Single Axis Control', exact: true }).click();
 
+    const changedZone = 'Zone_2012002 LD';
+    const comparisonZone = 'Zone_2012003 LD';
+    const singleAxisTab = page.getByRole('tabpanel', { name: 'Single Axis Control' });
 
-    await common.deleteAllTasks();
+    await singleAxisControl.selectZone(changedZone);
+    await singleAxisControl.online('Offline', 'Y');
+    await singleAxisControl.servoOn('Servo Off', 'Y');
+
+    await singleAxisControl.selectZone(comparisonZone);
+    await expect(singleAxisTab.getByText('IN_SERVICE', { exact: true })).toBeVisible();
+    await expect(singleAxisTab.getByText('STAND_STILL', { exact: true })).toBeVisible();
+
+    await singleAxisControl.selectZone(changedZone);
+    await expect(singleAxisTab.getByText('OFFLINE', { exact: true })).toBeVisible();
+    await expect(singleAxisTab.getByText('DISABLE', { exact: true })).toBeVisible();
+
+    await singleAxisControl.selectZone(changedZone);
+    await singleAxisControl.online('Online', 'Y');
+    await singleAxisControl.servoOn('Servo On', 'Y');
 });
