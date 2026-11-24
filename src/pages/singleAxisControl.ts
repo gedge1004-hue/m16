@@ -25,14 +25,14 @@ export class SingleAxisControl {
     }
 
     private async completeConfirmation(option: string | undefined, confirmation: Confirmation) {
-        const dialog = this.page.getByRole('dialog').last();
+        const buttonName = confirmation === 'Y' ? 'OK' : 'Cancel';
+        const dialog = this.page.getByRole('dialog')
+            .filter({ has: this.page.getByRole('button', { name: buttonName, exact: true }) })
+            .last();
         if (option) {
             await dialog.getByText(option, { exact: true }).click();
         }
-        await dialog.getByRole('button', {
-            name: confirmation === 'Y' ? 'OK' : 'Cancel',
-            exact: true,
-        }).click();
+        await dialog.getByRole('button', { name: buttonName, exact: true }).click();
     }
 
     private async clickAndConfirm(button: string, option: string | undefined, confirmation: Confirmation) {

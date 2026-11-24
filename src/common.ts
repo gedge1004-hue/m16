@@ -150,6 +150,7 @@ export class Common {
 
     async popupClose() {
         const warningHeader = this.page.locator('header.el-dialog__header', { hasText: 'Warning' });
+        const closeButton = warningHeader.locator('button');
 
         // 만약 호출하는 시점에 이미 팝업이 떠 있다면 0초 만에 바로 통과
         try {
@@ -159,7 +160,13 @@ export class Common {
             return;
         }
         // 팝업이 확인되었으므로 버튼을 클릭해 닫음
-        await warningHeader.locator('button').click();        
+        try {
+            await closeButton.click({ timeout: 2000 });
+        } catch (error) {
+            if (await warningHeader.isVisible()) {
+                throw error;
+            }
+        }
         // 버튼 누른 후 팝업이 완전히 사라질 때까지 대기
         await expect(warningHeader).toBeHidden();
     }

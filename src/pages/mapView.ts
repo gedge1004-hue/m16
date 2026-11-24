@@ -130,7 +130,10 @@ export class MapView {
         // 팝업 박스 내부의 여러 item 중 'Install Carrier' 텍스트를 정확히 매칭하여 클릭
         await popoverBox.locator('.item', { hasText: 'Install Carrier' }).click();
         // 팝업 내부의 OK 버튼 클릭
-        await this.page.locator('.el-dialog__footer .el-button--success', { hasText: 'OK' }).click(); 
+        const installDialog = this.page.getByRole('dialog')
+            .filter({ has: this.page.getByRole('button', { name: 'OK', exact: true }) })
+            .last();
+        await installDialog.getByRole('button', { name: 'OK', exact: true }).click();
 
         await this.page.waitForTimeout(3000);
 
