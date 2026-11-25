@@ -114,12 +114,14 @@ export class MapView {
         }
     }
 
-    async installCarrier(x: number, y: number) {
+    async installCarrier(x: number, y: number, ensureMiniMapClosed = true) {
         // Canvas 요소 지정 및 대기
         const mapCanvas = this.page.locator('.canvas-wrapper canvas');
         await mapCanvas.waitFor({ state: 'visible' });
 
-        await this.miniMapOnOff('N');
+        if (ensureMiniMapClosed) {
+            await this.miniMapOnOff('N');
+        }
 
         await this.page.mouse.click(x, y, { button: 'right' });
 

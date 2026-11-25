@@ -4,6 +4,7 @@ type Confirmation = 'Y' | 'N';
 type OnlineOption = 'Online' | 'Offline';
 type ServoOption = 'Servo On' | 'Servo Off';
 type MoveDirection = 'Forward' | 'Backward';
+type QsMoveDirection = 'Home' | 'N90' | 'P90' | 'CCW' | 'CW';
 type AllAxisCommand = 'Servo On' | 'Servo Off' | 'Homing' | 'Clear Motor Error' | 'Stop';
 
 export class SingleAxisControl {
@@ -60,6 +61,16 @@ export class SingleAxisControl {
 
     async move(direction: MoveDirection, confirmation: Confirmation) {
         await this.clickAndConfirm('Move', direction, confirmation);
+    }
+
+    async moveQs(direction: QsMoveDirection, confirmation: Confirmation) {
+        await this.clickButton('Move');
+        const dialog = this.page.getByRole('dialog', { name: 'QS Move Command', exact: true });
+        await dialog.getByText(direction, { exact: true }).click({ timeout: 5000 });
+        await dialog.getByRole('button', {
+            name: confirmation === 'Y' ? 'OK' : 'Cancel',
+            exact: true,
+        }).click({ timeout: 5000 });
     }
 
     async stop() {

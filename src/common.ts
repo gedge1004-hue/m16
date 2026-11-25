@@ -112,6 +112,14 @@ export class Common {
         console.log('🎉 수집된 모든 ID 항목의 처리가 완료되었습니다.');
     }
 
+    async expectEventLog(expected: RegExp) {
+        const eventLog = this.page.locator('.monaco-editor');
+        await expect.poll(
+            async () => (await eventLog.innerText()).replace(/\u00a0/g, ' '),
+            { timeout: 10000 },
+        ).toMatch(expected);
+    }
+
     async initializeMouseTracker() {
         await this.page.addInitScript(() => {
             // 실행할 마우스 트래커 주입 핵심 로직을 함수로 분리
@@ -170,4 +178,26 @@ export class Common {
         // 버튼 누른 후 팝업이 완전히 사라질 때까지 대기
         await expect(warningHeader).toBeHidden();
     }
+
+    async alarmAllClear() {
+        // Alarm 탭 선택
+        await this.page.getByRole('tab', { name: 'Alarm' }).click();
+
+        // Alarm 탭 패널 및 내부 요소 로케이터 정의
+        const alarmPane = this.page.locator('#pane-1');
+        const alarmRows = alarmPane.locator('.el-table__body tbody tr.el-table__row');
+        const allClearBtn = alarmPane.getByRole('button', { name: 'All Clear' });
+
+        // 테이블 데이터가 로드될 시간 확보 (네트워크 요청이 있다면 waitForLoadState 등 활용)
+        await this.page.waitForTimeout(500); // 필요에 따라 API 응답 대기로 대체 권장
+
+        // Alarm 데이터 행이 1개 이상 존재하면 All Clear 버튼 클릭
+        if ((await alarmRows.count()) > 0) {
+            await allClearBtn.click();
+
+            // (선택 사항) 클릭 후 모든 행이 사라졌는지 검증
+            await expect(alarmRows).toHaveCount(0);
+        }
+    }
+
 }
