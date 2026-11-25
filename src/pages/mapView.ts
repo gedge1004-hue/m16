@@ -124,8 +124,9 @@ export class MapView {
         }
 
         await this.page.mouse.click(x, y, { button: 'right' });
+        await this.page.waitForTimeout(1500);
 
-        // // 우클릭 후 팝업 박스가 화면에 나타날 때까지 대기
+        // 우클릭 후 팝업 박스가 화면에 나타날 때까지 대기
         const popoverBox = this.page.locator('.popover-box');
         await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
 
