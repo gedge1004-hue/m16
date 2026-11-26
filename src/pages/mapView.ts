@@ -1,4 +1,5 @@
 import { Page, expect, test } from '@playwright/test';
+import { Common } from '@common';
 import fs from 'fs';
 import path from 'path';
 
@@ -115,6 +116,8 @@ export class MapView {
     }
 
     async installCarrier(x: number, y: number, ensureMiniMapClosed = true) {
+
+        const common = new Common(this.page);
         // Canvas 요소 지정 및 대기
         const mapCanvas = this.page.locator('.canvas-wrapper canvas');
         await mapCanvas.waitFor({ state: 'visible' });
@@ -140,6 +143,8 @@ export class MapView {
 
         await this.page.waitForTimeout(3000);
 
+        await common.alarmAllClear();
+
     }
 
     async addJunction(x: number, y: number): Promise<string> {
@@ -148,29 +153,35 @@ export class MapView {
         await mapCanvas.waitFor({ state: 'visible' });
 
         await this.miniMapOnOff('N');
-        
-        // 최초 우클릭하여 메뉴 열기
-        await this.page.mouse.click(x, y, { button: 'right' });
+        await this.page.waitForTimeout(500); // 미니맵 닫힘 및 캔버스 안정화 대기
 
-        // 우클릭 후 팝업 박스가 화면에 나타날 때까지 대기
         const popoverBox = this.page.locator('.popover-box');
-        await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
+
+        // 팝업 박스가 나타날 때까지 우클릭 재시도 (간헐적 클릭 씹힘 방지)
+        await expect(async () => {
+            if (!(await popoverBox.isVisible())) {
+                await this.page.mouse.click(x, y, { button: 'right' });
+            }
+            await expect(popoverBox).toBeVisible({ timeout: 1000 });
+        }).toPass({ timeout: 10000 });
 
         // 'Add Junction' 메뉴 클릭 (등록 수행)
-        await popoverBox.locator('.item', { hasText: 'Add Junction' }).click(); 
+        await popoverBox.locator('.item', { hasText: 'Add Junction' }).click();
 
-        // ✨ 중요: 서버 및 Canvas 백엔드에 데이터가 반영되고, 최초 팝업이 완전히 닫힐 때까지 대기
+        // 서버 및 Canvas 백엔드에 데이터가 반영되고, 최초 팝업이 완전히 닫힐 때까지 대기
         await popoverBox.waitFor({ state: 'hidden', timeout: 3000 });
-        await this.page.waitForTimeout(1000); // 캔버스 갱신 유예 시간
+        await this.page.waitForTimeout(1000);
 
-        // 재확인을 위해 동일 좌표 우클릭 (새로 생성된 Junction 위를 우클릭하게 됨)
-        await this.page.mouse.click(x, y, { button: 'right' });
-        await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
+        // 재확인을 위해 동일 좌표 우클릭 (역시 팝업이 뜰 때까지 재시도)
+        await expect(async () => {
+            if (!(await popoverBox.isVisible())) {
+                await this.page.mouse.click(x, y, { button: 'right' });
+            }
+            await expect(popoverBox).toBeVisible({ timeout: 1000 });
+        }).toPass({ timeout: 10000 });
 
         // 'Add Junction: 숫자' 형태로 메뉴가 변경되었는지 확인
         const junctionItem = popoverBox.locator('.item', { hasText: 'Add Junction:' });
-        
-        // 화면에 정상 노출되는지 검증
         await expect(junctionItem).toBeVisible({ timeout: 3000 });
         await expect(junctionItem).toContainText(/Add Junction:\s*\d+/);
 

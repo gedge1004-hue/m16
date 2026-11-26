@@ -32,42 +32,58 @@ test('MON_0175 Task List - Information', async ({ page }) => {
     try {
         await mapView.installCarrier(73, 340);
         await common.popupClose();
-        await page.mouse.click(73, 340, { button: 'left' });
-
-        await expect(taskRows).toHaveCount(1);
-        const taskRow = taskRows.first();
-        await expect(taskRow).toBeVisible();
+        await mapView.installCarrier(160, 340, false);
+        await common.popupClose();
+        await mapView.installCarrier(247, 340, false);
+        await common.popupClose();
 
         const columnNames = (await taskList.getByRole('columnheader').allInnerTexts())
             .map((name) => name.trim());
-        const rowCells = taskRow.locator('.el-table-v2__cell-text');
-        const rowCellCount = await rowCells.count();
-        const getValue = async (columnName: string) => {
-            const index = columnNames.indexOf(columnName);
-            expect(index, `Missing Task List column: ${columnName}`).toBeGreaterThanOrEqual(0);
-            expect(index, `No Task List value for column: ${columnName}`).toBeLessThan(rowCellCount);
-            return (await rowCells.nth(index).innerText()).trim();
-        };
+        const requiredColumns = [
+            'Task ID',
+            'Carrier ID',
+            'Zone ID From',
+            'Zone ID To',
+            'Zone ID Junctions',
+            'Task State',
+            'Current Location',
+            'Install Time',
+        ];
+        for (const column of requiredColumns) {
+            await expect(taskList.getByRole('columnheader', { name: column, exact: true })).toBeVisible();
+        }
 
-        const taskId = await getValue('Task ID');
-        const carrierId = await getValue('Carrier ID');
-        const zoneIdFrom = await getValue('Zone ID From');
-        const zoneIdTo = await getValue('Zone ID To');
-        const junctionZoneId = await getValue('Zone ID Junctions');
-        const taskState = await getValue('Task State');
-        const currentLocation = await getValue('Current Location');
-        const installTime = await getValue('Install Time');
+        await expect(taskRows).toHaveCount(3);
+        for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+            const rowCells = taskRows.nth(rowIndex).locator('.el-table-v2__cell-text');
+            const rowCellCount = await rowCells.count();
+            const getValue = async (columnName: string) => {
+                const index = columnNames.indexOf(columnName);
+                expect(index, `Missing Task List column: ${columnName}`).toBeGreaterThanOrEqual(0);
+                expect(index, `No Task List value for column: ${columnName}`).toBeLessThan(rowCellCount);
+                return (await rowCells.nth(index).innerText()).trim();
+            };
 
-        expect(taskId).toMatch(/^\d+$/);
-        expect(carrierId).not.toBe('');
-        expect(zoneIdFrom).toMatch(/^\d+$/);
-        expect(taskState).toBe('READY');
-        expect(currentLocation).toBe(zoneIdFrom);
-        expect(Number.isNaN(Date.parse(installTime))).toBe(false);
+            const taskId = await getValue('Task ID');
+            const carrierId = await getValue('Carrier ID');
+            const zoneIdFrom = await getValue('Zone ID From');
+            const zoneIdTo = await getValue('Zone ID To');
+            const junctionZoneId = await getValue('Zone ID Junctions');
+            const taskState = await getValue('Task State');
+            const currentLocation = await getValue('Current Location');
+            const installTime = await getValue('Install Time');
 
-        for (const zoneId of [zoneIdTo, junctionZoneId]) {
-            if (zoneId) {
-                expect(zoneId).toMatch(/^\d+$/);
+            expect(taskId).toMatch(/^\d+$/);
+            expect(carrierId).not.toBe('');
+            expect(zoneIdFrom).toMatch(/^\d+$/);
+            expect(taskState).toBe('READY');
+            expect(currentLocation).toBe(zoneIdFrom);
+            expect(Number.isNaN(Date.parse(installTime))).toBe(false);
+
+            for (const zoneId of [zoneIdTo, junctionZoneId]) {
+                if (zoneId) {
+                    expect(zoneId).toMatch(/^\d+$/);
+                }
             }
         }
     } finally {

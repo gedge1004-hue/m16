@@ -17,12 +17,19 @@ test('MON_0178 Task List - Resume Transfer', async ({ page }) => {
     await loginPage.login('tester', 'tester');
     await menuPage.navigateTo('monitoring');
 
-    await common.deleteAllTasks();
-    await common.popupClose();
-
     const taskList = page.getByRole('table').last();
     const taskRows = taskList.locator('.el-table-v2__row.task-info-table__row');
     const commandPicker = page.locator('.el-dialog').filter({ hasText: /Task \d+ Command Picker/ });
+
+    while (await taskRows.count() > 0) {
+        const rowCount = await taskRows.count();
+        if (!(await commandPicker.isVisible())) {
+            await taskRows.first().dblclick();
+        }
+        await expect(commandPicker).toBeVisible();
+        await commandPicker.getByRole('button', { name: 'Abort', exact: true }).click();
+        await expect.poll(() => taskRows.count(), { timeout: 30000 }).toBeLessThan(rowCount);
+    }
 
     try {
         await mapView.installCarrier(73, 340);
@@ -51,8 +58,23 @@ test('MON_0178 Task List - Resume Transfer', async ({ page }) => {
         await expect(commandPicker).toBeHidden();
         await expect(taskState).toHaveText('TRANSFERRING', { timeout: 15000 });
     } finally {
-        await common.deleteAllTasks();
         await common.popupClose();
-        await common.alarmAllClear();
+        try {
+            while (await taskRows.count() > 0) {
+                const rowCount = await taskRows.count();
+                if (!(await commandPicker.isVisible())) {
+                    await taskRows.first().dblclick();
+                }
+                await expect(commandPicker).toBeVisible();
+                await commandPicker.getByRole('button', { name: 'Abort', exact: true }).click();
+                await expect.poll(() => taskRows.count(), { timeout: 30000 }).toBeLessThan(rowCount);
+            }
+        } finally {
+            if (await commandPicker.isVisible()) {
+                await commandPicker.getByRole('button', { name: 'Close this dialog' }).click();
+                await expect(commandPicker).toBeHidden();
+            }
+            await common.alarmAllClear();
+        }
     }
 });
