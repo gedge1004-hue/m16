@@ -64,6 +64,7 @@ test('MON_0177 Task List - Pause Transfer', async ({ page }) => {
             }
         } finally {
             await common.alarmAllClear();
+            await common.deleteAllTasks();
         }
     }
 });

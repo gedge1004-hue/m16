@@ -58,6 +58,7 @@ test('MON_0176 Task List - Command Picker', async ({ page }) => {
             }
         } finally {
             await common.alarmAllClear();
+            await common.deleteAllTasks();
         }
     }
 });

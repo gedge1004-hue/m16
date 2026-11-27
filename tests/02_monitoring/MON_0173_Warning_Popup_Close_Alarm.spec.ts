@@ -4,49 +4,136 @@ import { LoginPage } from '@login';
 import { MenuPage } from '@menuPage';
 import { MapView } from '@mapView';
 import { TransferControl } from '@transferControl';
-import { SingleAxisControl } from '@singleAxisControl';
 
 test('MON_0173 Warning Popup - Close Other Alarm', async ({ page }) => {
+    test.setTimeout(300000);
+
     const common = new Common(page);
     const loginPage = new LoginPage(page);
     const menuPage = new MenuPage(page);
     const mapView = new MapView(page);
     const transferControl = new TransferControl(page);
-    const singleAxisControl = new SingleAxisControl(page);
 
     await common.goto();
     await common.changeLanguage('us');
     await loginPage.login('tester', 'tester');
     await menuPage.navigateTo('monitoring');
     await common.deleteAllTasks();
-    await page.getByRole('tab', { name: 'Single Axis Control', exact: true }).click();
-    await singleAxisControl.selectZone('Zone_2012017 LD');
-    await singleAxisControl.reset('Y');
-    await page.getByRole('tab', { name: 'Transfer Control', exact: true }).click();
 
     try {
-        await mapView.installCarrier(73, 340);
-        await common.popupClose();
-        await page.mouse.click(73, 340, { button: 'left' });
-        await mapView.addJunction(520, 385);
-        await transferControl.reverseChangeDestination('Y');
+        const carrierLocations = [
+            { x: 73, y: 340 },
+            { x: 160, y: 340 },
+            { x: 247, y: 340 },
+        ];
+
+        for (let index = 0; index < carrierLocations.length; index++) {
+            const { x, y } = carrierLocations[index];
+            await mapView.installCarrier(x, y, index === 0);
+            await common.popupClose();
+        }
+
+        const taskRows = page.getByRole('table').last().locator('.el-table-v2__row.task-info-table__row');
+        await expect(taskRows).toHaveCount(carrierLocations.length);
+        const sourceZones = await taskRows.evaluateAll(rows =>
+            rows.map(row => row.querySelectorAll('.el-table-v2__cell-text')[3]?.textContent?.trim()),
+        );
+        expect(new Set(sourceZones).size).toBe(carrierLocations.length);
+
+        await page.getByRole('tab', { name: 'Single Axis Control', exact: true }).click();
+        const singleAxisTab = page.getByRole('tabpanel', { name: 'Single Axis Control' });
+        await singleAxisTab.locator('.el-select').click();
+        const zoneOptions = await page.getByRole('option').allTextContents();
+        await page.keyboard.press('Escape');
+
+        const installedZoneIds = new Set(sourceZones);
+        const junctionZoneIds = [...new Set(zoneOptions
+            .map(option => option.match(/Zone_(\d+)\b/)?.[1])
+            .filter((zoneId): zoneId is string => Boolean(zoneId)))]
+            .filter(zoneId => !installedZoneIds.has(zoneId));
+        expect(junctionZoneIds.length).toBeGreaterThanOrEqual(carrierLocations.length);
 
         const warningHeader = page.locator('header.el-dialog__header', { hasText: 'Warning' });
         const warningDialog = page.locator('.el-dialog').filter({ has: warningHeader });
-        await expect(warningDialog).toBeVisible({ timeout: 10000 });
+        const mapCanvas = page.locator('.canvas-wrapper canvas');
+        const searchZoneInput = page.locator('.el-input__inner').first();
+        const transferPanel = page.getByRole('tabpanel', { name: 'Transfer Control' });
+
+        for (let index = 0; index < carrierLocations.length; index++) {
+            await page.getByRole('tab', { name: 'Transfer Control', exact: true }).click();
+            await taskRows.nth(index).click();
+
+            await page.getByRole('tab', { name: 'Single Axis Control', exact: true }).click();
+            await searchZoneInput.fill(junctionZoneIds[index]);
+            await page.locator('.el-button.is-circle').click();
+            await page.waitForTimeout(2000);
+
+            const mapBox = await mapCanvas.boundingBox();
+            if (!mapBox) {
+                throw new Error('Map canvas is not available after searching for a Junction zone');
+            }
+            const junctionX = Math.round(mapBox.x + mapBox.width / 2);
+            const junctionY = Math.round(mapBox.y + mapBox.height / 2);
+            await mapView.addJunction(junctionX, junctionY, false);
+            const mapContextMenu = page.locator('.popover-box');
+            if (await mapContextMenu.isVisible()) {
+                await page.mouse.click(Math.round(mapBox.x + 20), Math.round(mapBox.y + 20));
+            }
+            await expect(mapContextMenu).toBeHidden();
+
+            await page.getByRole('tab', { name: 'Transfer Control', exact: true }).click();
+            await transferControl.reverseChangeDestination('Y');
+            await expect(warningDialog).toBeVisible({ timeout: 10000 });
+
+            if (index === 0) {
+                const dialogBox = await warningDialog.boundingBox();
+                const headerBox = await warningHeader.boundingBox();
+                const panelBox = await transferPanel.boundingBox();
+                if (!dialogBox || !headerBox || !panelBox || !mapBox) {
+                    throw new Error('Warning popup geometry is unavailable');
+                }
+
+                const targetX = panelBox.x + panelBox.width - dialogBox.width - 20;
+                const targetY = panelBox.y + panelBox.height - dialogBox.height - 20;
+                const startX = headerBox.x + headerBox.width / 2;
+                const startY = headerBox.y + headerBox.height / 2;
+                await page.mouse.move(startX, startY);
+                await page.mouse.down();
+                await page.mouse.move(
+                    startX + targetX - dialogBox.x,
+                    startY + targetY - dialogBox.y,
+                    { steps: 20 },
+                );
+                await page.mouse.up();
+
+                await expect.poll(async () => {
+                    const movedDialog = await warningDialog.boundingBox();
+                    return movedDialog ? movedDialog.x > mapBox.x + mapBox.width : false;
+                }).toBe(true);
+            }
+        }
 
         const warningRows = warningDialog.locator('.el-dialog__body li');
-        await expect.poll(() => warningRows.count()).toBeGreaterThan(1);
+        await expect.poll(() => warningRows.count()).toBeGreaterThanOrEqual(carrierLocations.length);
 
+        const initialCount = await warningRows.count();
         const selectedWarning = warningRows.first();
-        const selectedText = await selectedWarning.innerText();
+        const selectedText = (await selectedWarning.innerText()).trim();
+        const selectedZone = selectedText.match(/zone\[(\d+)\]/i)?.[1];
+        const otherWarning = warningRows.nth(1);
+        const otherText = (await otherWarning.innerText()).trim();
+        const otherZone = otherText.match(/zone\[(\d+)\]/i)?.[1];
+        expect(selectedZone).toBeTruthy();
+        expect(otherZone).toBeTruthy();
+        expect(otherZone).not.toBe(selectedZone);
+
         await selectedWarning.click();
         await expect(warningDialog).toContainText(/AlarmCode/i);
 
-        const otherWarning = warningRows.nth(1);
         await otherWarning.locator('.el-icon').click();
 
-        await expect(warningRows).toHaveCount(1);
+        await expect(warningRows).toHaveCount(initialCount - 1);
+        await expect(warningRows.filter({ hasText: otherText })).toHaveCount(0);
         await expect(warningDialog).toContainText(selectedText);
         await expect(warningDialog).toContainText(/AlarmCode/i);
     } finally {

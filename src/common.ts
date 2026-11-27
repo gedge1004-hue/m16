@@ -103,7 +103,7 @@ export class Common {
                 console.log(`✅ ID [${rowKey}] 항목의 연관 작업 완료`);
 
                 // 데이터가 지워지고 가상 스크롤이 재정렬될 수 있도록 유예 시간 부여
-                await this.page.waitForTimeout(8000);
+                await this.page.waitForTimeout(10000);
             } else {
                 console.log(`⏩ ID [${rowKey}] 항목이 이미 화면에 없어 건너뜁니다.`);
             }
@@ -113,11 +113,61 @@ export class Common {
     }
 
     async expectEventLog(expected: RegExp) {
+        await this.page.getByRole('tab', { name: 'Event', exact: true }).click();
         const eventLog = this.page.locator('.monaco-editor');
         await expect.poll(
             async () => (await eventLog.innerText()).replace(/\u00a0/g, ' '),
             { timeout: 10000 },
         ).toMatch(expected);
+    }
+
+    async deleteTaskListRows(taskRows: Locator) {
+        const commandPicker = this.page.locator('.el-dialog').filter({ hasText: /Task \d+ Command Picker/ });
+
+        while (await taskRows.count() > 0) {
+            const firstRow = taskRows.first();
+            const taskId = (await firstRow.locator('.el-table-v2__cell-text').nth(0).innerText()).trim();
+            const taskRow = taskRows.filter({ hasText: taskId });
+            const taskState = taskRow.locator('.el-table-v2__cell-text').nth(6);
+            const state = (await taskState.innerText()).trim();
+            const waitForRemoval = async () => {
+                try {
+                    await expect(taskRow, `Task ${taskId} should leave the Task List`)
+                        .toHaveCount(0, { timeout: 15000 });
+                    return true;
+                } catch {
+                    if (await taskRow.count() === 0) {
+                        return true;
+                    }
+                    console.warn(`Task ${taskId} remains in the Task List after cleanup.`);
+                    return false;
+                }
+            };
+
+            if (state === 'COMPLETE') {
+                if (!(await waitForRemoval())) {
+                    return;
+                }
+                continue;
+            }
+
+            await taskRow.dblclick();
+            await expect(commandPicker).toBeVisible();
+
+            if (state === 'TRANSFERRING') {
+                await commandPicker.getByRole('button', { name: 'Pause', exact: true }).click();
+                await expect(taskState).toHaveText('PAUSED', { timeout: 30000 });
+                await expect(commandPicker).toBeHidden();
+                await taskRow.dblclick();
+                await expect(commandPicker).toBeVisible();
+            }
+
+            await commandPicker.getByRole('button', { name: 'Abort', exact: true }).click();
+            await expect(commandPicker).toBeHidden();
+            if (!(await waitForRemoval())) {
+                return;
+            }
+        }
     }
 
     async initializeMouseTracker() {

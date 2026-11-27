@@ -126,12 +126,19 @@ export class MapView {
             await this.miniMapOnOff('N');
         }
 
-        await this.page.mouse.click(x, y, { button: 'right' });
         await this.page.waitForTimeout(1500);
 
-        // 우클릭 후 팝업 박스가 화면에 나타날 때까지 대기
+        await this.page.mouse.click(x, y, { button: 'right' });
+        await this.page.waitForTimeout(1000);
+
+        // 우클릭 메뉴가 간헐적으로 열리지 않는 경우 재시도
         const popoverBox = this.page.locator('.popover-box');
-        await popoverBox.waitFor({ state: 'visible', timeout: 3000 });
+        await expect(async () => {
+            if (!(await popoverBox.isVisible())) {
+                await this.page.mouse.click(x, y, { button: 'right' });
+            }
+            await expect(popoverBox).toBeVisible({ timeout: 1000 });
+        }).toPass({ timeout: 10000 });
 
         // 팝업 박스 내부의 여러 item 중 'Install Carrier' 텍스트를 정확히 매칭하여 클릭
         await popoverBox.locator('.item', { hasText: 'Install Carrier' }).click();
@@ -147,12 +154,14 @@ export class MapView {
 
     }
 
-    async addJunction(x: number, y: number): Promise<string> {
+    async addJunction(x: number, y: number, ensureMiniMapClosed = true): Promise<string> {
         // Canvas 요소 지정 및 대기
         const mapCanvas = this.page.locator('.canvas-wrapper canvas');
         await mapCanvas.waitFor({ state: 'visible' });
 
-        await this.miniMapOnOff('N');
+        if (ensureMiniMapClosed) {
+            await this.miniMapOnOff('N');
+        }
         await this.page.waitForTimeout(500); // 미니맵 닫힘 및 캔버스 안정화 대기
 
         const popoverBox = this.page.locator('.popover-box');

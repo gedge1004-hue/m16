@@ -99,6 +99,7 @@ test('MON_0175 Task List - Information', async ({ page }) => {
             }
         } finally {
             await common.alarmAllClear();
+            await common.deleteAllTasks();
         }
     }
 });

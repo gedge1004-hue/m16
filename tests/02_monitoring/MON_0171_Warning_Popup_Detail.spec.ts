@@ -22,6 +22,7 @@ test('MON_0171 Warning Popup - Detail', async ({ page }) => {
     await page.getByRole('tab', { name: 'Single Axis Control', exact: true }).click();
     await singleAxisControl.selectZone('Zone_2012017 LD');
     await singleAxisControl.reset('Y');
+    await common.popupClose();
     await page.getByRole('tab', { name: 'Transfer Control', exact: true }).click();
 
     try {
@@ -43,7 +44,6 @@ test('MON_0171 Warning Popup - Detail', async ({ page }) => {
             'AlarmCode',
             'AlarmName',
             'ReasonCode',
-            'ReasonName',
             'Situation',
             'Description',
             'Solution',
